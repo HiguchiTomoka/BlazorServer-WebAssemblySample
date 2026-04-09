@@ -1,0 +1,1 @@
+BlazorServer単体での実装の弱点を補うために、BlazorServer + BlazorWebAssemblyのハイブリット型構成で実装を行ってみました。
