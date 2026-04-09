@@ -1,40 +1,107 @@
 ﻿@page "/webAssembly"
-@rendermode InteractiveWebAssembly
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 @using BlazorAppWebAssemblyServerHybrid.Client.Models
-@inject Blazored.LocalStorage.ILocalStorageService Storage
+@using BlazorAppWebAssemblyServerHybrid.Client.Constants
 
-<input value="@text" @oninput="OnInput" />
+@* DIコンテナそのものをInject（必要なサービスをサーバー側から取得するため） *@
+@inject IServiceProvider Services
+
+<h3>フォーム入力</h3>
+
+<div>
+    <label>テキスト:</label>
+    <input @bind="formData.Text" />
+</div>
+
+<div>
+    <label>会社名:</label>
+    <input @bind="formData.CompanyName" />
+</div>
+
+<div>
+    <label>社員名:</label>
+    <input @bind="formData.EmployeeName" />
+</div>
+
 <button @onclick="Save">保存</button>
 
-<p>@text</p>
+<h4>表示</h4>
+<p>@formData.Text</p>
+<p>@formData.CompanyName</p>
+<p>@formData.EmployeeName</p>
+
+<p>Now: @DateTime.Now</p>
 
 @code {
-    private string text = "";
+    // フォーム全体を1つのモデルで管理
+    private FormData formData = new();
 
-    [Inject]
-    private HttpClient Http { get; set; } = default!;
-
-    private void OnInput(ChangeEventArgs e)
+    /// <summary>
+    ///   初期表示時処理
+    ///   1.サーバーからLocalStorageWrapperを取得
+    ///   2.LocalStorageWrapperが取得できたか判別
+    /// </summary>
+    protected override async Task OnInitializedAsync()
     {
-        text = e.Value?.ToString() ?? "";
+        try
+        {
+            // 1.WASM専用サービスは「その場で取得」する（Serverレンダリング対策）
+            var storage = Services.GetService<BlazorAppWebAssemblyServerHybrid.Client.Services.LocalStorageWrapper>();
+
+            // 2.Serverレンダリング時はnullになるのでチェック必須
+            if (storage != null)
+            {
+                var data = await storage.GetAsync<FormData>(StorageKeys.FormData);
+
+                // ★ データがあれば復元、なければ新規
+                formData = data ?? new FormData();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"初期化エラー: {ex.Message}");
+        }
     }
 
     /// <summary>
     ///   保存ボタン押下時処理
     ///   
-    /// 1.ローカルストレージに保存
-    /// 2.サーバー側(DB)に保存
+    ///   1. localStorage保存（下書き）
+    ///   2. API送信（本保存）
+    ///   3. サーバー登録が成功判定であった場合ローカルストレージの削除
+    ///   
     /// </summary>
-    /// <returns></returns>
     private async Task Save()
     {
-        // 1. ローカル保存
-        await Storage.SetItemAsync("formData", new FormData
+        try
         {
-            Text = text
-        });
+            // 必要なサービスをその場で取得（Hybrid対応）
+            var storage = Services.GetRequiredService<BlazorAppWebAssemblyServerHybrid.Client.Services.LocalStorageWrapper>();
+            var http = Services.GetRequiredService<HttpClient>();
 
-        // 2. サーバーにも保存（必要なら）
-        await Http.PostAsJsonAsync("api/form", text);
+            // 1.localStorageに保存（1時間有効）
+            await storage.SetAsync(StorageKeys.FormData, formData, TimeSpan.FromHours(1));
+
+            // 2.サーバーへ送信（DB保存想定）
+            var response = await http.PostAsJsonAsync("api/form", formData);
+
+            // 3.成功判定であった場合
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("保存成功");
+
+                // 本保存成功したらローカル削除（データ不整合防止）
+                await storage.RemoveAsync(StorageKeys.FormData);
+            }
+            else
+            {
+                Console.WriteLine("APIエラー");
+            }
+        }
+        catch (Exception ex)
+        {
+            // 例外キャッチ（画面クラッシュ防止）
+            Console.WriteLine($"保存エラー: {ex.Message}");
+        }
     }
-} 
+}

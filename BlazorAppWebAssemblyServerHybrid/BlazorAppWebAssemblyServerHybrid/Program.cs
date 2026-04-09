@@ -1,3 +1,4 @@
+using BlazorAppWebAssemblyServerHybrid.Client.Models;
 using BlazorAppWebAssemblyServerHybrid.Client.Pages;
 using BlazorAppWebAssemblyServerHybrid.Components;
 
@@ -37,5 +38,17 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(BlazorAppWebAssemblyServerHybrid.Client._Imports).Assembly);
+
+// Minimal API
+app.MapPost("/api/form", async (FormData formData) =>
+{
+    // とりあえずログ
+    Console.WriteLine($"Text: {formData.Text}");
+    Console.WriteLine($"Company: {formData.CompanyName}");
+    Console.WriteLine($"Employee: {formData.EmployeeName}");
+
+    // 本来はDB保存
+    return Results.Ok(new { message = "保存成功" });
+});
 
 app.Run();
