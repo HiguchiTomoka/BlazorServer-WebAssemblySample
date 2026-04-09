@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="BlazorAppWebAssemblyServerHybrid/BlazorAppWebAssemblyServerHybrid.Client/BlazorAppWebAssemblyServerHybrid.Client.csproj" />
+  <Project Path="BlazorAppWebAssemblyServerHybrid/BlazorAppWebAssemblyServerHybrid/BlazorAppWebAssemblyServerHybrid.csproj" />
+</Solution>

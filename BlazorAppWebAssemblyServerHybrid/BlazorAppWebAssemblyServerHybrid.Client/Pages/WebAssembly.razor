@@ -1,0 +1,40 @@
+﻿@page "/webAssembly"
+@rendermode InteractiveWebAssembly
+@using BlazorAppWebAssemblyServerHybrid.Client.Models
+@inject Blazored.LocalStorage.ILocalStorageService Storage
+
+<input value="@text" @oninput="OnInput" />
+<button @onclick="Save">保存</button>
+
+<p>@text</p>
+
+@code {
+    private string text = "";
+
+    [Inject]
+    private HttpClient Http { get; set; } = default!;
+
+    private void OnInput(ChangeEventArgs e)
+    {
+        text = e.Value?.ToString() ?? "";
+    }
+
+    /// <summary>
+    ///   保存ボタン押下時処理
+    ///   
+    /// 1.ローカルストレージに保存
+    /// 2.サーバー側(DB)に保存
+    /// </summary>
+    /// <returns></returns>
+    private async Task Save()
+    {
+        // 1. ローカル保存
+        await Storage.SetItemAsync("formData", new FormData
+        {
+            Text = text
+        });
+
+        // 2. サーバーにも保存（必要なら）
+        await Http.PostAsJsonAsync("api/form", text);
+    }
+} 
