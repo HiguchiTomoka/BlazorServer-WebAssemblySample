@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\BlazorAppWebAssemblyServerHybrid.Share\BlazorAppWebAssemblyServerHybrid.Shared.csproj" />
     <ProjectReference Include="..\BlazorAppWebAssemblyServerHybrid.Client\BlazorAppWebAssemblyServerHybrid.Client.csproj" />
     <PackageReference Include="Blazor.LocalStorage" Version="9.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.25" />

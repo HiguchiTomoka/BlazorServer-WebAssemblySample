@@ -1,4 +1,4 @@
-namespace BlazorAppWebAssemblyServerHybrid.Client.Models
+namespace BlazorAppWebAssemblyServerHybrid.Shared.Models
 {
     /// <summary>
     ///   フォーム入力値データ

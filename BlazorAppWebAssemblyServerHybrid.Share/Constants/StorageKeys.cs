@@ -1,4 +1,4 @@
-namespace BlazorAppWebAssemblyServerHybrid.Client.Constants
+namespace BlazorAppWebAssemblyServerHybrid.Shared.Constants
 {
     /// <summary>
     ///   キャッシュ用ラッパークラス

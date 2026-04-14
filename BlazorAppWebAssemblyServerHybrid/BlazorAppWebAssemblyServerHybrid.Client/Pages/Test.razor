@@ -1,0 +1,10 @@
+﻿@page "/test"
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+
+<input @bind="text" />
+<p>@text</p>
+<p>@DateTime.Now</p>
+
+@code {
+    private string text = "";
+}

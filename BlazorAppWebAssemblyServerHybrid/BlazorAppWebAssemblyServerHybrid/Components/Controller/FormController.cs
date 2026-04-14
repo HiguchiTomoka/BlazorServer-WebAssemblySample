@@ -1,3 +1,4 @@
+using BlazorAppWebAssemblyServerHybrid.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlazorAppWebAssemblyServerHybrid.Controller
@@ -8,11 +9,17 @@ namespace BlazorAppWebAssemblyServerHybrid.Controller
     {
         // POSTメソッド
         [HttpPost]
-        public IActionResult Save([FromBody] string text)
+        public IActionResult Save([FromBody] FormData formData)
         {
             // DB or LocalStorageに保存とかする(今はいったんコンソール表示)
-            Console.WriteLine(text);
-            return Ok();
+            Console.WriteLine($"Text: {formData.Text}");
+            Console.WriteLine($"Company: {formData.CompanyName}");
+            Console.WriteLine($"Employee: {formData.EmployeeName}");
+
+            // 本来はここでDB保存
+
+            // レスポンス返却
+            return Ok(new { message = "保存成功" });
         }
     }
 }

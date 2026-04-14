@@ -1,7 +1,7 @@
 ﻿@page "/webAssembly"
-@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
-@using BlazorAppWebAssemblyServerHybrid.Client.Models
-@using BlazorAppWebAssemblyServerHybrid.Client.Constants
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false)) // 最初からWASMだけで動く(Serverを経由しない)
+@using BlazorAppWebAssemblyServerHybrid.Shared.Models
+@using BlazorAppWebAssemblyServerHybrid.Shared.Constants
 
 @* DIコンテナそのものをInject（必要なサービスをサーバー側から取得するため） *@
 @inject IServiceProvider Services
@@ -30,36 +30,58 @@
 <p>@formData.CompanyName</p>
 <p>@formData.EmployeeName</p>
 
-<p>Now: @DateTime.Now</p>
-
 @code {
     // フォーム全体を1つのモデルで管理
     private FormData formData = new();
+    // 初期表示であるか？
+    private bool initialized = false;
 
     /// <summary>
-    ///   初期表示時処理
-    ///   1.サーバーからLocalStorageWrapperを取得
-    ///   2.LocalStorageWrapperが取得できたか判別
+    /// Serverでも実行される。安全な処理だけやる
     /// </summary>
-    protected override async Task OnInitializedAsync()
+    /// <returns></returns>
+    protected override Task OnInitializedAsync()
     {
-        try
-        {
-            // 1.WASM専用サービスは「その場で取得」する（Serverレンダリング対策）
-            var storage = Services.GetService<BlazorAppWebAssemblyServerHybrid.Client.Services.LocalStorageWrapper>();
+        // ここでは何もしない or デフォルト値設定
+        return Task.CompletedTask;
+    }
 
-            // 2.Serverレンダリング時はnullになるのでチェック必須
-            if (storage != null)
+
+    /// <summary>
+    /// 初回レンダリング後にlocalStorageからデータを復元する処理
+    /// </summary>
+    /// <param name="firstRender"></param>
+    /// <returns></returns>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // 初回レンダリング時のみ実行（毎回やると無限ループや上書きが発生する）
+        if (firstRender && !initialized)
+        {
+            initialized = true;
+
+            try
             {
-                var data = await storage.GetAsync<FormData>(StorageKeys.FormData);
+                // WASM専用サービス（localStorage）はDIから動的に取得する ※Serverレンダリング時は null になるため GetService を使用
+                var storage = Services.GetService<BlazorAppWebAssemblyServerHybrid.Client.Services.LocalStorageWrapper>();
 
-                // ★ データがあれば復元、なければ新規
-                formData = data ?? new FormData();
+                // WASMとして動作している場合のみ処理を実行
+                if (storage != null)
+                {
+                    // localStorageから保存済みデータを取得
+                    var data = await storage.GetAsync<FormData>(StorageKeys.FormData);
+
+                    // データが存在すれば復元、なければ新規インスタンスを生成
+                    formData = data ?? new FormData();
+
+                    // UIの更新
+                    StateHasChanged();
+                }
             }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"初期化エラー: {ex.Message}");
+            catch (Exception ex)
+            {
+                // 例外発生時はログ出力（必要に応じてロギングフレームワークへ）
+                Console.WriteLine($"初期化エラー: {ex.Message}");
+            }
         }
     }
 
