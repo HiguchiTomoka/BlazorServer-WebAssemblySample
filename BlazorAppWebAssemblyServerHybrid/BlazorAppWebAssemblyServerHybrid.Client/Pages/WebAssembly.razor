@@ -37,17 +37,6 @@
     private bool initialized = false;
 
     /// <summary>
-    /// Serverでも実行される。安全な処理だけやる
-    /// </summary>
-    /// <returns></returns>
-    protected override Task OnInitializedAsync()
-    {
-        // ここでは何もしない or デフォルト値設定
-        return Task.CompletedTask;
-    }
-
-
-    /// <summary>
     /// 初回レンダリング後にlocalStorageからデータを復元する処理
     /// </summary>
     /// <param name="firstRender"></param>
