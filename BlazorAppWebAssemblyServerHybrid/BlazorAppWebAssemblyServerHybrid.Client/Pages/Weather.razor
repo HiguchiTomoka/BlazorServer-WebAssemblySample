@@ -1,6 +1,8 @@
 ﻿@page "/weather"
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false)) // 最初からWASMだけで動く(Serverを経由しない)
 @* HttpClient を受け取る *@
 @inject HttpClient HttpClient
+@using BlazorAppWebAssemblyServerHybrid.Shared.Models
 <PageTitle>Weather</PageTitle>
 
 <h1>Weather</h1>
@@ -42,12 +44,4 @@ else
     protected override async Task OnInitializedAsync() =>
         // API を呼び出してデータを取得
         forecasts = await HttpClient.GetFromJsonAsync<WeatherForecast[]>("api/WeatherForecast");
-
-    private class WeatherForecast
-    {
-        public DateOnly Date { get; set; }
-        public int TemperatureC { get; set; }
-        public string? Summary { get; set; }
-        public int TemperatureF { get; set; }
-    }
 }
