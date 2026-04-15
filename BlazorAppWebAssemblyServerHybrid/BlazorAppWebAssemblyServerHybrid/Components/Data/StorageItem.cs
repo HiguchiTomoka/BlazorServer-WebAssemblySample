@@ -1,4 +1,4 @@
-namespace BlazorAppWebAssemblyServerHybrid.Components.Data
+namespace BlazorAppWebAssemblyServerHybrid.Server.Components.Data
 {
     /// <summary>
     /// LocalStrogeItem

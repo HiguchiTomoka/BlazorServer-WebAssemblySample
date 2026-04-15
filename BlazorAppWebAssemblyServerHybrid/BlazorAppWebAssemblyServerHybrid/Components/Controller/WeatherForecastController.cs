@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BlazorAppWebAssemblyServerHybrid.Shared.Models;
 
-namespace BlazorAppWebAssemblyServerHybrid.Components.Controller
+namespace BlazorAppWebAssemblyServerHybrid.Server.Components.Controller
 {
 
     [Route("api/WeatherForecast")]

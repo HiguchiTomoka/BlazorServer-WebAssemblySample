@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
-namespace BlazorAppWebAssemblyServerHybrid.Components.Data
+namespace BlazorAppWebAssemblyServerHybrid.Server.Components.Data
 {
 
     /// <summary>

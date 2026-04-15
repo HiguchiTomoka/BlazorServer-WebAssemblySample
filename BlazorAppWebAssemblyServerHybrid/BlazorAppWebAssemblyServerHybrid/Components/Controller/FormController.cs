@@ -1,7 +1,7 @@
 using BlazorAppWebAssemblyServerHybrid.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BlazorAppWebAssemblyServerHybrid.Controller
+namespace BlazorAppWebAssemblyServerHybrid.Server.Components.Controller
 {
     [ApiController] // APIですという宣言
     [Route("api/form")] // URLの指定
